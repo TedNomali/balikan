@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sorry, Love...</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'EB Garamond', serif;
+    background: linear-gradient(to bottom, #8ecae6 0%, #219ebc 35%, #023047 75%, #001220 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #fff;
+  }
+
+  body { overflow: hidden; }
+  body.scrollable-active { overflow: auto; }
+
+  .rotate-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #01426a;
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.3rem;
+    color: #a9d6e5;
+    padding: 20px;
+  }
+
+  @media (max-width: 900px) and (orientation: portrait) {
+    .rotate-warning { display: flex; }
+    .screens { display: none; }
+  }
+
+  .screens {
+    position: relative;
+    min-height: 100vh;
+    width: 100vw;
+  }
+
+  .screen {
+    display: none;
+    position: absolute;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 60px;
+  }
+
+  .screen.active { display: flex; }
+
+  /* Layar surat panjang perlu scroll, jadi posisinya relative bukan absolute-center */
+  .screen.scrollable {
+    position: relative;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding: 60px 15%;
+  }
+
+  h1.script {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: 4rem;
+    text-shadow: 0 0 20px rgba(142,202,230,0.5);
+    margin-bottom: 20px;
+  }
+
+  h2.script {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: 2.6rem;
+    margin-bottom: 15px;
+  }
+
+  p.subtitle {
+    font-size: 1.2rem;
+    max-width: 550px;
+    font-style: italic;
+    color: #caf0f8;
+    margin-bottom: 35px;
+  }
+
+  .pill-btn {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: #a9d6e5;
+    color: #023047;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 0 #4a7fa5;
+  }
+
+  .pill-btn:hover { transform: translateY(-2px); }
+  .pill-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #4a7fa5; }
+
+  .pill-btn.secondary {
+    background: transparent;
+    color: #a9d6e5;
+    border: 2px solid #a9d6e5;
+    box-shadow: none;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Tombol "Tolak" yang kabur-kaburan biar ga bisa diklik.
+     Pakai transform (bukan position:fixed) supaya ruang aslinya
+     di btn-row tetap terjaga dan tombol "Terima" tidak ikut geser. */
+  #tolakBtn {
+    transition: transform 0.25s ease;
+    will-change: transform;
+  }
+
+  /* Envelope */
+  .envelope {
+    width: 220px;
+    height: 150px;
+    background: #14324a;
+    position: relative;
+    margin-bottom: 40px;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  }
+
+  .envelope::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 110px solid transparent;
+    border-right: 110px solid transparent;
+    border-top: 90px solid #1c4966;
+  }
+
+  /* Gif slot */
+  .gif-slot {
+    width: 180px;
+    height: 180px;
+    border-radius: 20px;
+    border: 3px dashed #a9d6e5;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #a9d6e5;
+    margin: 20px auto;
+    overflow: hidden;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .gif-slot img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Surat panjang */
+  .letter-title {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: 3.5rem;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 25px;
+  }
+
+  .spotify-wrap {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto 40px auto;
+  }
+
+  .letter-text {
+    max-width: 650px;
+    margin: 0 auto;
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: #caf0f8;
+    text-align: left;
+  }
+
+  .letter-text p { margin-bottom: 22px; }
+
+  .letter-signature { margin-top: 10px; margin-bottom: 40px; }
+
+  .continue-wrap {
+    text-align: center;
+    padding-bottom: 60px;
+  }
+
+  .floating-heart {
+    position: fixed;
+    bottom: -50px;
+    font-size: 1.5rem;
+    pointer-events: none;
+    animation: floatUp 4s linear forwards;
+    z-index: 5;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rotate-warning">📱↻ mode landscape dulu ya hpnya cinta biar keliatan~</div>
+
+<div class="screens">
+
+  <!-- SCREEN 1: Landing -->
+  <div class="screen active" id="screen-landing">
+    <h1 class="script">I'm Sorry, Love...</h1>
+    <p class="subtitle">Sebuah ruang buat aku jujur, buka hati, dan nyambungin lagi apa yang sempat renggang di antara kita</p>
+    <button class="pill-btn" onclick="showScreen('screen-envelope')">Start</button>
+  </div>
+
+  <!-- SCREEN 2: Envelope -->
+  <div class="screen" id="screen-envelope">
+    <div class="envelope"></div>
+    <div class="btn-row">
+      <button class="pill-btn" onclick="showScreen('screen-letter')">Read</button>
+      <button class="pill-btn secondary" onclick="showScreen('screen-wait')">I need more time</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Surat panjang (scrollable) + Spotify -->
+  <div class="screen scrollable" id="screen-letter">
+    <h1 class="letter-title">I'm Sorry, Love...</h1>
+
+    <div class="spotify-wrap">
+      <!-- Ganti link di bawah ini dengan link lagu Spotify kamu sendiri -->
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/5l6GqSxplqnZbLg0LTPQeG?utm_source=copy-link" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
+    <div class="letter-text">
+      <p>will u be my girlfriends? apa ini ga kecepetan yaa? aku masih takut, bekas trauma ku belum sembuh, takut keulang lagi, rasa sakitny, overthinkinnya, tapi aku mau ngilangin hal itu, dengan kehadiran kamu, bisa membantu aku nyembuhin kecewa aku sama kamu yang kemarinn, i miss u</p>
+      <p>hubungan ini tuh berharga banget buat aku, sampe sampe rasa sakit kemarin aku terima gitu aja, kamu harapan terakhir ku, kamu doa doaku, kamu energi terakhirku, lebih baik aku memperbaiki ini 1000x daripada harus mulai dengan orang baru, tapi rasa sakit dan kecewa itu ga bisa sembuh gitu aja.</p>
+      <p>yakinin aku kalo kamu beneran sayang sama aku, yakini aku kalo emang kamu tercipta untukku. kadang aku mikir kamu tuh bagian diriku yang hilang bukan? sikapmu kadang membuatku bingung, jika memang tidak katakan tidak, jika memang iya perbaikilah </p>
+      <p>kamu mau ga jadi istri ku lagi? kamu ga perlu buru buru jawab, take ur time, aku ada di sini ko, kabarin aku aja kalo kamu sudah punya jawaban</p>
+      <p class="letter-signature">di tulis dengan cinta dan tulus<br>TedNomali ⚓</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="pill-btn" onclick="showScreen('screen-final')">Terima</button>
+      <button class="pill-btn secondary" id="tolakBtn" onclick="dodgeTolak(event)" onmouseenter="dodgeTolak(event)">Tolak</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: I need more time -->
+  <div class="screen" id="screen-wait">
+    <h2 class="script">Take all the time you need, love</h2>
+    <div class="gif-slot" id="waitGif"><img src="cuking.gif" alt="cuking" onerror="this.parentElement.textContent='(taruh gif kamu di sini)'"></div>
+    <p class="subtitle">I Love You, Love!</p>
+    <button class="pill-btn secondary" onclick="showScreen('screen-envelope')">Back</button>
+  </div>
+
+  <!-- SCREEN 6: Final -> buka WhatsApp -->
+  <div class="screen" id="screen-final">
+    <h2 class="script">yataa, makasih ya udah mau nerima aku 🥹🤍</h2>
+    <p class="subtitle">kalo beneran kamu nerima aku lagi, push button di bawah ini yaa </p>
+    <button class="pill-btn" onclick="openWhatsApp()">hasil jawaban kamu disini👣</button>
+  </div>
+
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    var target = document.getElementById(id);
+    target.classList.add('active');
+
+    // Halaman surat butuh scroll, halaman lain di-center full screen
+    if (id === 'screen-letter') {
+      document.body.classList.add('scrollable-active');
+      window.scrollTo(0, 0);
+    } else {
+      document.body.classList.remove('scrollable-active');
+    }
+
+    // Reset tombol "Tolak" tiap kali pindah dari/ke layar surat, biar
+    // posisinya ga nyangkut di tempat random waktu layar lain dibuka
+    resetTolakBtn();
+  }
+
+  // ---- Logika tombol "Tolak" yang kabur ----
+  var tolakTexts = [
+    "Tolak",
+    "yakin nih?",
+    "ko di tolak sih 🥹",
+    "eumm, ko gituu 🥹",
+    "pliss 🥹",
+    "ko gitu sihh 🥹"
+  ];
+  var tolakIndex = 0;
+  var tolakBaseRect = null; // posisi asli tombol sebelum digeser (tanpa transform)
+
+  function resetTolakBtn() {
+    var btn = document.getElementById('tolakBtn');
+    if (!btn) return;
+    btn.style.transform = '';
+    tolakBaseRect = null;
+    tolakIndex = 0;
+    btn.textContent = tolakTexts[0];
+  }
+
+  function dodgeTolak(e) {
+    e.preventDefault();
+    var btn = document.getElementById('tolakBtn');
+    tolakIndex = (tolakIndex + 1) % tolakTexts.length;
+    btn.textContent = tolakTexts[tolakIndex];
+    moveTolakRandom(btn);
+  }
+
+  function moveTolakRandom(btn) {
+    // Ukur posisi asli tombol (tanpa transform) hanya sekali,
+    // supaya ruang di btn-row tetap seperti semula dan tombol
+    // "Terima" tidak ikut bergeser.
+    if (!tolakBaseRect) {
+      var prevTransform = btn.style.transform;
+      btn.style.transform = 'none';
+      tolakBaseRect = btn.getBoundingClientRect();
+      btn.style.transform = prevTransform;
+    }
+
+    var btnWidth = tolakBaseRect.width || 150;
+    var btnHeight = tolakBaseRect.height || 50;
+    var margin = 15;
+    var range = 60; // jarak geser maksimal per klik
+
+    var currentRect = btn.getBoundingClientRect();
+    var newX = currentRect.left + (Math.random() * range * 2 - range);
+    var newY = currentRect.top + (Math.random() * range * 2 - range);
+
+    var maxX = Math.max(margin, window.innerWidth - btnWidth - margin);
+    var maxY = Math.max(margin, window.innerHeight - btnHeight - margin);
+
+    newX = Math.min(Math.max(margin, newX), maxX);
+    newY = Math.min(Math.max(margin, newY), maxY);
+
+    var deltaX = newX - tolakBaseRect.left;
+    var deltaY = newY - tolakBaseRect.top;
+    btn.style.transform = 'translate(' + deltaX + 'px, ' + deltaY + 'px)';
+  }
+
+  function openWhatsApp() {
+    // GANTI nomor di bawah ini dengan nomor WhatsApp kamu sendiri (format: kode negara tanpa + atau 0, contoh: 6281234567890)
+    var phoneNumber = "6283164174823";
+    var message = "aku terima kamu lagi jadi suami aku, tapi soal trauma mu, aku juga pernah kecewa, aku juga pernah sakit, jadi kita lewati ini sama sama yaa dan tumbuh bareng menjadi lebih baikk 🤕🤍";
+    var url = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent(message);
+    window.open(url, '_blank');
+    startConfetti();
+  }
+
+  function startConfetti() {
+    var hearts = ['🤍','🏵️','🌼','🌸'];
+    var interval = setInterval(function() {
+      var heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+      document.body.appendChild(heart);
+      setTimeout(function() { heart.remove(); }, 4000);
+    }, 200);
+    setTimeout(function() { clearInterval(interval); }, 6000);
+  }
+</script>
+
+</body>
+</html>
